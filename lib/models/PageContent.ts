@@ -7,7 +7,7 @@ export interface IPageContent extends Document {
 }
 
 const ContentBlockSchema = new Schema({
-  type: { type: String, enum: ['table', 'qa', 'list', 'paragraph','image'], required: true },
+  type: { type: String, enum: ['table', 'qa', 'list', 'paragraph', 'image', 'pdf', 'video'], required: true },
   title: { type: String },
   image: { type: String },
   data: { type: Schema.Types.Mixed },
@@ -22,5 +22,8 @@ const PageContentSchema = new Schema<IPageContent>(
   { timestamps: true }
 );
 
-const PageContent = models.PageContent || model<IPageContent>('PageContent', PageContentSchema);
+if (models.PageContent) {
+  delete models.PageContent;
+}
+const PageContent = model<IPageContent>('PageContent', PageContentSchema);
 export default PageContent;

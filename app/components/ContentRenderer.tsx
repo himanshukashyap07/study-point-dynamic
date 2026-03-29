@@ -4,7 +4,7 @@ import React from 'react';
 
 export interface ContentBlock {
   _id?: string;
-  type: 'table' | 'qa' | 'list' | 'paragraph' | 'image';
+  type: 'table' | 'qa' | 'list' | 'paragraph' | 'image' | 'pdf' | 'video';
   title?: string;
   description?: string;
   image?: string;
@@ -47,6 +47,20 @@ function toYouTubeEmbed(url: string): string {
   // Already an embed URL
   if (url.includes('/embed/')) return url;
   return url;
+}
+
+function getAttachmentLabel(url: string | undefined): string {
+  if (!url) return 'View Media';
+  const kind = getMediaType(url);
+  if (kind === 'youtube') return 'Watch Video';
+  if (kind === 'pdf') return 'View PDF';
+  if (url.includes('drive.google.com')) return 'View on Drive';
+  
+  const lastPart = url.split('/').pop()?.split('?')[0];
+  if (lastPart && lastPart.includes('.')) return lastPart;
+  
+  if (kind === 'image') return 'View Image';
+  return 'Open Link';
 }
 
 /* ── Universal media renderer ─────────────────────────────────────────── */
@@ -115,13 +129,31 @@ export default function ContentRenderer({ blocks }: Props) {
   return (
     <div className="content-renderer">
       <SocialShare />
-      {blocks.map((block, idx) => (
-        <div key={block._id || idx} className="content-block">
-          {block.title && <h3 className="content-block__title">{block.title}</h3>}
-          {block.description && <p className="content-block__description">{block.description}</p>}
-          <BlockContent block={block} />
-        </div>
-      ))}
+      {blocks.map((block, idx) => {
+        const isParagraphWithImage = block.type === 'paragraph' && !!block.image;
+        const showGlobalAttachment = !!block.image && !['paragraph', 'image', 'pdf', 'video'].includes(block.type);
+        return (
+          <div key={block._id || idx} className="content-block">
+            {block.title && !isParagraphWithImage && <h3 className="content-block__title">{block.title}</h3>}
+            <BlockContent block={block} />
+            
+            {showGlobalAttachment && (
+              <div className="paragraph-attachment" style={{ marginTop: '1.5rem' }}>
+                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                   <span style={{ fontWeight: 600, color: 'var(--gray-800)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.15rem' }}>
+                     {block.title || 'Attached Media'}
+                   </span>
+                   <a href={block.image} target="_blank" rel="noreferrer" className="content-link" style={{ fontWeight: 500, padding: '0.2rem 0.5rem', borderRadius: '4px', border: '1px solid var(--gray-200)', background: 'var(--gray-50)', textDecoration: 'none', fontSize: '1.05rem' }}>
+                     {getAttachmentLabel(block.image)}
+                   </a>
+                 </div>
+              </div>
+            )}
+
+            {block.description && !isParagraphWithImage && <p className="content-block__description" style={{ marginTop: '1rem' }}>{block.description}</p>}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -230,7 +262,32 @@ function BlockContent({ block }: { block: ContentBlock }) {
     }
 
     case 'paragraph': {
-      return <p className="content-paragraph">{block.text || ''}</p>;
+      return (
+        <div className="content-paragraph-wrap" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {block.image && (
+            <div className="paragraph-attachment" style={{  }}>
+               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                 <span style={{ fontWeight: 600, color: 'var(--gray-800)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.15rem' }}>
+                   {block.title || 'Attachment'}
+                 </span>
+                 <a href={block.image} target="_blank" rel="noreferrer" className="content-link" style={{ fontWeight: 500, padding: '0.2rem 0.5rem', borderRadius: '4px', border: '1px solid var(--gray-200)', background: 'var(--gray-50)', textDecoration: 'none', fontSize: '1.05rem' }}>
+                   {getAttachmentLabel(block.image)}
+                 </a>
+               </div>
+            </div>
+          )}
+          {block.text && (
+            <p className="content-paragraph" style={{ 
+              margin: 0, 
+              whiteSpace: 'pre-wrap', 
+              fontSize: block.image ? '1.15rem' : undefined,
+              marginTop: block.image ? '0.25rem' : '0'
+            }}>
+              {block.text}
+            </p>
+          )}
+        </div>
+      );
     }
 
     case 'image': {
@@ -286,6 +343,41 @@ function BlockContent({ block }: { block: ContentBlock }) {
         <div style={{ padding: '1rem 0' }}>
           <a href={url} target="_blank" rel="noreferrer" className="content-link">
             Open media
+          </a>
+        </div>
+      );
+    }
+
+    case 'video': {
+      const url = block.image || '';
+      if (!url) return null;
+      return (
+        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', padding: '1rem', border: '1px solid var(--border)', borderRadius: 'var(--radius)', background: 'var(--gray-50)', marginBottom: '1.5rem' }}>
+          <div style={{ fontSize: '2.5rem' }}>🎥</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 600, color: 'var(--gray-800)', fontSize: '1.1rem', marginBottom: '0.25rem' }}>{block.title || 'Video Content'}</div>
+            <div style={{ fontSize: '0.9rem', color: 'var(--gray-500)' }}>{getAttachmentLabel(url)}</div>
+          </div>
+          <a href={`/showVideo?url=${encodeURIComponent(url)}`} className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.95rem', fontWeight: 600, textDecoration: 'none' }}>
+            Watch
+          </a>
+        </div>
+      );
+    }
+
+    case 'pdf': {
+      const url = block.image || '';
+      if (!url) return null;
+      return (
+        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', padding: '1rem', border: '1px solid var(--border)', borderRadius: 'var(--radius)', background: 'var(--gray-50)', marginBottom: '1.5rem' }}>
+          <div style={{ fontSize: '2.5rem' }}>📄</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 600, color: 'var(--gray-800)', fontSize: '1.1rem', marginBottom: '0.25rem' }}>{block.title || 'PDF Document'}</div>
+            <div style={{ fontSize: '0.9rem', color: 'var(--gray-500)' }}>{getAttachmentLabel(url)}</div>
+          </div>
+          <a href={`/showpdf?url=${encodeURIComponent(url)}`} className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.95rem', fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            Open PDF
           </a>
         </div>
       );

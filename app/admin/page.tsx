@@ -275,6 +275,33 @@ function FullBlockForm({ initial, parentTitle, onClose, onSave }: {
   const [image, setImage] = useState(initial?.image || '');
   const [text, setText]   = useState(initial?.text || '');
   const [data, setData]   = useState<any>(initial?.data || (type === 'table' ? [{title:'',link:''}] : type === 'qa' ? [{question:'',links:['']}] : [{text:'',link:''}]));
+  const [uploading, setUploading] = useState(false);
+
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/api/uploadFile', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success && data.uploadResponse?.url) {
+        setImage(data.uploadResponse.url);
+      } else {
+        alert(data.message || 'Upload failed');
+      }
+    } catch (err) {
+      alert('Error uploading file');
+    } finally {
+      setUploading(false);
+    }
+  }
 
   function save() {
     onSave({ type, title, image: image || undefined, text: type === 'paragraph' ? text : undefined, data: (type !== 'paragraph' && type !== 'image') ? data : undefined });
@@ -305,6 +332,8 @@ function FullBlockForm({ initial, parentTitle, onClose, onSave }: {
               <option value="qa">❓ Q&amp;A</option>
               <option value="list">📋 List</option>
               <option value="image">🖼️ Image</option>
+              <option value="pdf">📄 PDF</option>
+              <option value="video">🎥 Video</option>
             </select>
           )}
         </div>
@@ -314,8 +343,11 @@ function FullBlockForm({ initial, parentTitle, onClose, onSave }: {
         </div>
 
         <div className="form-group">
-          <label className="form-label">Image URL (optional)</label>
-          <input className="form-input" placeholder="https://example.com/image.png" value={image} onChange={(e) => setImage(e.target.value)} />
+          <label className="form-label">Image/PDF/Video URL (optional) {uploading && <span style={{color: 'var(--blue-500)'}}> (Uploading...)</span>}</label>
+          <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column' }}>
+            <input type="file" className="form-input" accept="image/*, application/pdf, video/*" onChange={handleImageUpload} />
+            <input className="form-input" placeholder="Or enter URL directly (e.g. from ImageKit)" value={image} onChange={(e) => setImage(e.target.value)} />
+          </div>
         </div>
 
         {type === 'paragraph' && (

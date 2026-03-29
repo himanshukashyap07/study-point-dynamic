@@ -3,7 +3,7 @@ import mongoose, { Schema, Document, model, models } from 'mongoose';
 // Content block — can be table, qa, list, or paragraph
 export interface IContentBlock {
   _id?: string;
-  type: 'table' | 'qa' | 'list' | 'paragraph'|'image';
+  type: 'table' | 'qa' | 'list' | 'paragraph' | 'image' | 'pdf' | 'video';
   title?: string;
   data?: object;
   text?: string;
@@ -36,7 +36,7 @@ export interface INavLink extends Document {
 }
 
 const ContentBlockSchema = new Schema<IContentBlock>({
-  type: { type: String, enum: ['table', 'qa', 'list', 'paragraph','image'], required: true },
+  type: { type: String, enum: ['table', 'qa', 'list', 'paragraph', 'image', 'pdf', 'video'], required: true },
   title: { type: String },
   image: { type: String },
   data: { type: Schema.Types.Mixed },
@@ -69,5 +69,8 @@ const NavLinkSchema = new Schema<INavLink>(
   { timestamps: true }
 );
 
-const NavLink = models.NavLink || model<INavLink>('NavLink', NavLinkSchema);
+if (models.NavLink) {
+  delete models.NavLink;
+}
+const NavLink = model<INavLink>('NavLink', NavLinkSchema);
 export default NavLink;

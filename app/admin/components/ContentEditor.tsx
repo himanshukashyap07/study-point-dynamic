@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 interface ContentBlock {
   _id?: string;
-  type: 'table' | 'qa' | 'list' | 'paragraph' | 'image';
+  type: 'table' | 'qa' | 'list' | 'paragraph' | 'image' | 'pdf' | 'video';
   title?: string;
   description?: string;
   image?: string;
@@ -17,7 +17,7 @@ interface Props {
   title: string;
 }
 
-type BlockType = 'table' | 'qa' | 'list' | 'paragraph' | 'image';
+type BlockType = 'table' | 'qa' | 'list' | 'paragraph' | 'image' | 'pdf' | 'video';
 
 // Default data shapes per type
 const defaultData: Record<BlockType, unknown> = {
@@ -26,6 +26,8 @@ const defaultData: Record<BlockType, unknown> = {
   list: [{ text: '', description: '', link: '' }],
   paragraph: '',
   image: '',
+  pdf: '',
+  video: ''
 };
 
 export default function ContentEditor({ pageSlug, title }: Props) {
@@ -55,7 +57,10 @@ export default function ContentEditor({ pageSlug, title }: Props) {
     const method = isNew ? 'POST' : 'PUT';
     const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(block) });
     if (res.ok) { flash(isNew ? 'Block added!' : 'Block updated!'); setShowAdd(false); setEditBlock(null); fetchBlocks(); }
-    else { const d = await res.json(); flash(`Error: ${d.error}`); }
+    else { 
+      try { const d = await res.json(); flash(`Error: ${d.error || 'Server error'}`); } 
+      catch (e) { flash(`Server crashed or returned invalid response.`); }
+    }
   }
 
   async function deleteBlock(blockId: string) {
@@ -126,6 +131,34 @@ function BlockForm({ initial, onClose, onSave }: {
   const [text, setText] = useState(initial?.text || '');
   const [data, setData] = useState<unknown>(initial?.data || defaultData[initial?.type || 'paragraph']);
 
+  const [uploading, setUploading] = useState(false);
+
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/api/uploadFile', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success && data.uploadResponse?.url) {
+        setImage(data.uploadResponse.url);
+      } else {
+        alert(data.message || 'Upload failed');
+      }
+    } catch (err) {
+      alert('Error uploading file');
+    } finally {
+      setUploading(false);
+    }
+  }
+
   // Reset data when type changes (for new blocks)
   const handleTypeChange = (t: BlockType) => {
     setType(t);
@@ -151,14 +184,14 @@ function BlockForm({ initial, onClose, onSave }: {
           <div className="form-group">
             <label className="form-label">Block Type</label>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-              {(['table', 'qa', 'list', 'paragraph', 'image'] as BlockType[]).map((t) => (
+              {(['table', 'qa', 'list', 'paragraph', 'image', 'pdf', 'video'] as BlockType[]).map((t) => (
                 <button
                   key={t}
                   onClick={() => handleTypeChange(t)}
                   className={`btn btn-sm ${type === t ? 'btn-primary' : 'btn-outline'}`}
                   style={{ textTransform: 'capitalize' }}
                 >
-                  {t === 'table' ? '📊 Table' : t === 'qa' ? '❓ Q&A' : t === 'list' ? '📋 List' : t === 'paragraph' ? '📝 Paragraph' : "🖼️ Image"}
+                  {t === 'table' ? '📊 Table' : t === 'qa' ? '❓ Q&A' : t === 'list' ? '📋 List' : t === 'paragraph' ? '📝 Paragraph' : t === 'image' ? '🖼️ Image' : t === 'pdf' ? '📄 PDF' : '🎥 Video'}
                 </button>
               ))}
             </div>
@@ -169,14 +202,14 @@ function BlockForm({ initial, onClose, onSave }: {
             <input className="form-input" placeholder="Block heading" value={title} onChange={(e) => setTitle(e.target.value)} />
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Block Description (optional)</label>
-            <textarea className="form-textarea" rows={2} placeholder="Brief description of this section" value={description} onChange={(e) => setDescription(e.target.value)} />
-          </div>
+
 
           <div className="form-group">
-            <label className="form-label">Image URL</label>
-            <input className="form-input" placeholder="https://example.com/image.png" value={image} onChange={(e) => setImage(e.target.value)} />
+            <label className="form-label">Image/PDF/Video URL {uploading && <span style={{color: 'var(--blue-500)'}}> (Uploading...)</span>}</label>
+            <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column' }}>
+              <input type="file" className="form-input" accept="image/*, application/pdf, video/*" onChange={handleImageUpload} />
+              <input className="form-input" placeholder="Or enter URL directly (e.g. from ImageKit)" value={image} onChange={(e) => setImage(e.target.value)} />
+            </div>
           </div>
 
           {/* Type-specific fields */}

@@ -2,17 +2,27 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function Footer() {
   const pathname = usePathname();
+  const [navLinks, setNavLinks] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('/api/navlinks')
+      .then((r) => r.json())
+      .then((d) => setNavLinks(d.data || []))
+      .catch(() => { });
+  }, []);
+
   if (pathname?.startsWith('/admin')) return null;
   return (
     <footer className="footer">
       <div className="container">
         <div className="footer__grid" style={{ 
           display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-          gap: '3rem',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', 
+          gap: '2.5rem',
           marginBottom: '3rem'
         }}>
           <div className="footer__col">
@@ -32,33 +42,38 @@ export default function Footer() {
           </div>
           
           <div className="footer__col">
-            <h4 style={{ color: 'white', marginBottom: '1.5rem', fontSize: '1.1rem' }}>Study Materials</h4>
-            <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.9rem' }}>
-              <li><Link href="/jee-main">JEE Main Resources</Link></li>
-              <li><Link href="/jee-advanced">JEE Advanced</Link></li>
-              <li><Link href="/neet">NEET Preparation</Link></li>
-              <li><Link href="/cbse-boards">CBSE Board Exam</Link></li>
-              <li><Link href="/foundation-courses">Foundation Courses</Link></li>
+            <h4 style={{ color: 'white', marginBottom: '1.5rem', fontSize: '1.1rem' }}>Sitemap Navigation</h4>
+            <ul className="footer__sitemap-grid" style={{ 
+              listStyle: 'none', 
+              padding: 0, 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', 
+              gap: '0.75rem 1.5rem', 
+              fontSize: '0.9rem' 
+            }}>
+              <li><Link href="/">Home</Link></li>
+              <li><Link href="/about">About Us</Link></li>
+              {navLinks.map((nl: any) => (
+                <li key={nl._id}><Link href={`/${nl.slug}`}>{nl.label}</Link></li>
+              ))}
+              <li><Link href="/contact">Support</Link></li>
             </ul>
           </div>
 
           <div className="footer__col">
-            <h4 style={{ color: 'white', marginBottom: '1.5rem', fontSize: '1.1rem' }}>Quick Links</h4>
+            <h4 style={{ color: 'white', marginBottom: '1.5rem', fontSize: '1.1rem' }}>Legal</h4>
             <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.9rem' }}>
-              <li><Link href="/about">About Us</Link></li>
-              <li><Link href="/contact">Contact Support</Link></li>
-              <li><Link href="/careers">Careers</Link></li>
-              <li><Link href="/privacy-policy">Privacy Policy</Link></li>
-              <li><Link href="/terms">Terms & Conditions</Link></li>
+              <li><Link href="/privacy-policy">Privacy</Link></li>
+              <li><Link href="/terms">Terms</Link></li>
             </ul>
           </div>
           
-          <div className="footer__col">
+          <div className="footer__col" style={{ maxWidth: '100%', overflow: 'hidden' }}>
             <h4 style={{ color: 'white', marginBottom: '1.5rem', fontSize: '1.1rem' }}>Get in Touch</h4>
-            <p style={{ fontSize: '0.9rem', color: 'var(--gray-400)', marginBottom: '1rem' }}>
+            <p style={{ fontSize: '0.9rem', color: 'var(--gray-400)', marginBottom: '1rem', maxWidth: '300px' }}>
               Questions? Reach out to our academic counselors for guidance.
             </p>
-            <div className="footer__social" style={{ display: 'flex', gap: '1rem' }}>
+            <div className="footer__social" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
               <a href="#" className="social-footer-link">Twitter</a>
               <a href="#" className="social-footer-link">YouTube</a>
               <a href="#" className="social-footer-link">LinkedIn</a>

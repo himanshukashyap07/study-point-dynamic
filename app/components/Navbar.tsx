@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -38,7 +38,9 @@ export default function Navbar() {
   if (pathname?.startsWith('/admin')) return null;
 
   const toggleDropdown = (id: string) => {
-    setOpenDropdown(openDropdown === id ? null : id);
+    const nextDropdown = openDropdown === id ? null : id;
+    setOpenDropdown(nextDropdown);
+    // Always reset sub-menu when toggling a dropdown
     setOpenSub(null);
   };
   const toggleSub = (id: string, e: React.MouseEvent) => {
@@ -53,25 +55,15 @@ export default function Navbar() {
         <div className="container">
           <div className="topbar__inner">
             <div className="topbar__links">
-              <Link href="/privacy-policy">Privacy Policy</Link>
-              <Link href="/terms">Terms &amp; Conditions</Link>
+              <Link href="/privacy-policy">Privacy</Link>
+              <Link href="/terms">Terms</Link>
             </div>
             <div className="topbar__social">
-              <a href="#" aria-label="Twitter" target="_blank" rel="noreferrer">
-                <SvgTwitter />
-              </a>
-              <a href="#" aria-label="Facebook" target="_blank" rel="noreferrer">
-                <SvgFacebook />
-              </a>
-              <a href="#" aria-label="YouTube" target="_blank" rel="noreferrer">
-                <SvgYoutube />
-              </a>
-              <a href="#" aria-label="Instagram" target="_blank" rel="noreferrer">
-                <SvgInstagram />
-              </a>
-              <a href="#" aria-label="LinkedIn" target="_blank" rel="noreferrer">
-                <SvgLinkedin />
-              </a>
+              <a href="#" aria-label="Twitter" target="_blank" rel="noreferrer"><SvgTwitter /></a>
+              <a href="#" aria-label="Facebook" target="_blank" rel="noreferrer"><SvgFacebook /></a>
+              <a href="#" aria-label="YouTube" target="_blank" rel="noreferrer"><SvgYoutube /></a>
+              <a href="#" aria-label="Instagram" target="_blank" rel="noreferrer"><SvgInstagram /></a>
+              <a href="#" aria-label="LinkedIn" target="_blank" rel="noreferrer"><SvgLinkedin /></a>
             </div>
           </div>
         </div>
@@ -99,50 +91,49 @@ export default function Navbar() {
 
             {/* Nav links */}
             <ul className={`navbar__menu${menuOpen ? ' open' : ''}`}>
-              <li>
-                <Link href="/" onClick={() => setMenuOpen(false)}>Home</Link>
-              </li>
-              <li>
-                <Link href="/about" onClick={() => setMenuOpen(false)}>About</Link>
+              {/* Home */}
+              <li className="nav-item">
+                <div className="nav-item-wrapper">
+                  <Link href="/" className="nav-label-link" onClick={() => setMenuOpen(false)}>Home</Link>
+                </div>
               </li>
 
+              {/* About */}
+              <li className="nav-item">
+                <div className="nav-item-wrapper">
+                  <Link href="/about" className="nav-label-link" onClick={() => setMenuOpen(false)}>About</Link>
+                </div>
+              </li>
+
+              {/* Dynamic nav links */}
               {navLinks.map((nl) => (
-                <li
-                  key={nl._id}
-                  className="dropdown-parent"
-                  style={{ display: 'flex', alignItems: 'center' }}
-                  onMouseEnter={() => nl.midLinks.length > 0 && setOpenDropdown(nl._id)}
-                  onMouseLeave={() => { setOpenDropdown(null); setOpenSub(null); }}
-                >
-                  <Link
-                    href={`/${nl.slug}`}
-                    className="nav-label-link"
-                    onClick={() => { setMenuOpen(false); setOpenDropdown(null); setOpenSub(null); }}
-                  >
-                    {nl.label}
-                  </Link>
-                  {nl.midLinks.length > 0 && (
-                    <button
-                      className="dropdown-toggle-btn"
-                      onClick={(e) => { e.preventDefault(); toggleDropdown(nl._id); }}
-                      aria-label="Toggle dropdown"
+                <li key={nl._id} className="nav-item dropdown-parent">
+                  <div className="nav-item-wrapper">
+                    <Link
+                      href={`/${nl.slug}`}
+                      className="nav-label-link"
+                      onClick={() => { setMenuOpen(false); setOpenDropdown(null); setOpenSub(null); }}
                     >
-                      <ChevronDown />
-                    </button>
-                  )}
+                      {nl.label}
+                    </Link>
+                    {nl.midLinks.length > 0 && (
+                      <button
+                        className="dropdown-toggle-btn mobile-only"
+                        onClick={(e) => { e.preventDefault(); toggleDropdown(nl._id); }}
+                        aria-label="Toggle dropdown"
+                      >
+                        <ChevronDown />
+                      </button>
+                    )}
+                  </div>
 
                   {nl.midLinks.length > 0 && (
                     <div className={`dropdown${openDropdown === nl._id ? ' open' : ''}`}>
                       {nl.midLinks.map((ml) => (
-                        <div
-                          key={ml._id}
-                          className="dropdown__item"
-                          onMouseEnter={() => ml.subLinks.length > 0 && setOpenSub(ml._id)}
-                          onMouseLeave={() => setOpenSub(null)}
-                        >
+                        <div key={ml._id} className="dropdown__item">
                           {ml.subLinks.length > 0 ? (
                             <>
-                              <div style={{ display: 'flex', alignItems: 'center' }}>
+                              <div className="dropdown-item-row">
                                 <Link
                                   href={`/${nl.slug}/${ml.slug}`}
                                   className="nav-label-link"
@@ -151,14 +142,14 @@ export default function Navbar() {
                                   {ml.label}
                                 </Link>
                                 <button
-                                  className="dropdown-toggle-btn"
+                                  className="dropdown-toggle-btn mobile-only"
                                   onClick={(e) => toggleSub(ml._id, e)}
                                 >
                                   <ChevronRight />
                                 </button>
                               </div>
                               <div className={`sub-dropdown${openSub === ml._id ? ' open' : ''}`}>
-                                {nl.midLinks.find(m => m._id === ml._id)?.subLinks.map((sl) => (
+                                {ml.subLinks.map((sl) => (
                                   <div key={sl._id} className="dropdown__item">
                                     <Link
                                       href={`/${nl.slug}/${ml.slug}/${sl.slug}`}
@@ -185,18 +176,40 @@ export default function Navbar() {
                 </li>
               ))}
 
-              <li>
-                <Link href="/contact" onClick={() => setMenuOpen(false)}>Contact</Link>
+              {/* Contact */}
+              <li className="nav-item">
+                <div className="nav-item-wrapper">
+                  <Link href="/contact" className="nav-label-link" onClick={() => setMenuOpen(false)}>Contact</Link>
+                </div>
               </li>
             </ul>
 
             {/* Actions */}
             <div className="navbar__actions">
-              {/* <Link href="/admin" className="btn btn-outline btn-sm">Admin</Link> */}
-              {
-                isAdmin && <Link href="/admin" className="btn btn-outline btn-sm">Admin</Link>
-              }
-              <Link href="/login" className="btn btn-primary btn-sm">Login</Link>
+              {isAdmin && <Link href="/admin" className="btn btn-outline btn-sm">Admin</Link>}
+              {session.status === 'authenticated' ? (
+                !isAdmin && (
+                  <div className="user-profile-dropdown">
+                    <button className="user-icon-btn" aria-label="User Profile">
+                      <UserIcon />
+                    </button>
+                    <div className="user-dropdown-content">
+                      <div className="user-info">
+                        <p className="user-name">{session.data?.user?.name || 'User'}</p>
+                        <p className="user-email">{session.data?.user?.email}</p>
+                      </div>
+                      <button
+                        onClick={() => signOut({ callbackUrl: '/' })}
+                        className="signout-btn"
+                      >
+                        <SignOutIcon /> Sign Out
+                      </button>
+                    </div>
+                  </div>
+                )
+              ) : (
+                <Link href="/login" className="btn btn-primary btn-sm">Login</Link>
+              )}
             </div>
           </div>
         </div>
@@ -217,6 +230,23 @@ function ChevronRight() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
       <polyline points="9 18 15 12 9 6" />
+    </svg>
+  );
+}
+function SignOutIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <polyline points="16 17 21 12 16 7" />
+      <line x1="21" y1="12" x2="9" y2="12" />
+    </svg>
+  );
+}
+function UserIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
     </svg>
   );
 }
