@@ -107,11 +107,17 @@ export default function Navbar() {
               </li>
 
               {navLinks.map((nl) => (
-                <li key={nl._id} className="dropdown-parent" style={{ display: 'flex', alignItems: 'center' }}>
+                <li
+                  key={nl._id}
+                  className="dropdown-parent"
+                  style={{ display: 'flex', alignItems: 'center' }}
+                  onMouseEnter={() => nl.midLinks.length > 0 && setOpenDropdown(nl._id)}
+                  onMouseLeave={() => { setOpenDropdown(null); setOpenSub(null); }}
+                >
                   <Link
                     href={`/${nl.slug}`}
                     className="nav-label-link"
-                    onClick={() => { setMenuOpen(false); setOpenDropdown(null); }}
+                    onClick={() => { setMenuOpen(false); setOpenDropdown(null); setOpenSub(null); }}
                   >
                     {nl.label}
                   </Link>
@@ -128,7 +134,12 @@ export default function Navbar() {
                   {nl.midLinks.length > 0 && (
                     <div className={`dropdown${openDropdown === nl._id ? ' open' : ''}`}>
                       {nl.midLinks.map((ml) => (
-                        <div key={ml._id} className="dropdown__item">
+                        <div
+                          key={ml._id}
+                          className="dropdown__item"
+                          onMouseEnter={() => ml.subLinks.length > 0 && setOpenSub(ml._id)}
+                          onMouseLeave={() => setOpenSub(null)}
+                        >
                           {ml.subLinks.length > 0 ? (
                             <>
                               <div style={{ display: 'flex', alignItems: 'center' }}>
