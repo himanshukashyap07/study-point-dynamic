@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, model, models } from 'mongoose';
+import mongoose, { Schema, Document, model, models, Types } from 'mongoose';
 
 // Content block — can be table, qa, list, or paragraph
 export interface IContentBlock {
@@ -10,29 +10,27 @@ export interface IContentBlock {
   image?: string;
 }
 
-export interface ISubLink {
-  _id?: string;
+export interface ISubLink extends Document {
   slug: string;
   label: string;
   order: number;
-  contentBlocks: IContentBlock[];
+  contentBlocks: Types.DocumentArray<IContentBlock & Document>;
 }
 
-export interface IMidLink {
-  _id?: string;
+export interface IMidLink extends Document {
   slug: string;
   label: string;
   order: number;
-  contentBlocks: IContentBlock[];
-  subLinks: ISubLink[];
+  contentBlocks: Types.DocumentArray<IContentBlock & Document>;
+  subLinks: Types.DocumentArray<ISubLink>;
 }
 
 export interface INavLink extends Document {
   slug: string;
   label: string;
   order: number;
-  contentBlocks: IContentBlock[];
-  midLinks: IMidLink[];
+  contentBlocks: Types.DocumentArray<IContentBlock & Document>;
+  midLinks: Types.DocumentArray<IMidLink>;
 }
 
 const ContentBlockSchema = new Schema<IContentBlock>({

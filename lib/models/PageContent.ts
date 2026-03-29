@@ -1,9 +1,9 @@
-import { Schema, Document, model, models } from 'mongoose';
+import { Schema, Document, model, models, Types } from 'mongoose';
 import { IContentBlock } from './NavLink';
 
 export interface IPageContent extends Document {
-  pageSlug: string; // e.g. 'home', 'about', 'contact'
-  blocks: IContentBlock[];
+  pageSlug: string;
+  blocks: Types.DocumentArray<IContentBlock & Document>;
 }
 
 const ContentBlockSchema = new Schema({
