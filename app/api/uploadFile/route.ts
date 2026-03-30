@@ -3,8 +3,6 @@ import ImageKit from 'imagekit';
 
 import { NextResponse } from 'next/server';
 
-const MAX_FILE_SIZE = 10*1024*1024 //10MB
-
 const ALLOWED_FILES_TYPES = [
   "image/jpeg",
   "image/png",
@@ -33,14 +31,12 @@ export async function POST(req: Request) {
 
   const formData = await req.formData();
   const file = formData.get('file') as File;
-  
+
   if (!file) {
-    return NextResponse.json({message:"no file provided",success:false},{status:400})  }
-  if (file.size > MAX_FILE_SIZE) {
-    return NextResponse.json({message:"file side is not supported",success:false},{status:400})
+    return NextResponse.json({ message: "no file provided", success: false }, { status: 400 })
   }
   if (!ALLOWED_FILES_TYPES.includes(file.type)) {
-    return NextResponse.json({message:"file formate is not supported",success:false},{status:400})
+    return NextResponse.json({ message: "file formate is not supported", success: false }, { status: 400 })
   }
   const buffer = Buffer.from(await file.arrayBuffer());
 
@@ -49,8 +45,8 @@ export async function POST(req: Request) {
       file: buffer,
       fileName: file.name,
     });
-    return NextResponse.json({message:"file upload successully",uploadResponse,success:true},{status:200})
+    return NextResponse.json({ message: "file upload successully", uploadResponse, success: true }, { status: 200 })
   } catch (error: any) {
-    return NextResponse.json({message:"interl server error in sending message",success:false},{status:500})
+    return NextResponse.json({ message: "interl server error in sending message", success: false }, { status: 500 })
   }
 }

@@ -30,7 +30,7 @@ export default function Footer() {
               marginBottom: '1.25rem',
               display: 'inline-block'
             }}>
-              <img src="/logo.png" alt="StudyPoint Logo" className="site-logo inverted" />
+              <img src="/logo.png" alt="StudyPoint Logo" className="site-logo" />
             </div>
             <p className="footer__desc" style={{ fontSize: '0.9rem', lineHeight: '1.7', color: 'var(--gray-400)' }}>
               Empowering students with premium educational resources for JEE, NEET, and Board Exams.
@@ -85,7 +85,7 @@ export default function Footer() {
           fontSize: '0.85rem',
           color: 'var(--gray-500)'
         }}>
-          <p>&copy; {new Date().getFullYear()} StudyPoint Edutech. All rights reserved. Designed for Excellence.</p>
+          <p>&copy; {new Date().getFullYear()} StudyPoint Edutech. All rights reserved. Developed by <a href="https://himanshu-kashyap-portfolio.vercel.app" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--blue-400)', textDecoration: 'none' }}>Himanshu Kashyap</a>.</p>
         </div>
       </div>
     </footer>
