@@ -15,11 +15,11 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [openSub, setOpenSub] = useState<string | null>(null);
-  const [isAdmin,setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const session = useSession();
 
   useEffect(() => {
-    if(session.data?.user?.role === 'admin') {
+    if (session.data?.user?.role === 'admin') {
       setIsAdmin(true);
     } else {
       setIsAdmin(false);
@@ -75,7 +75,7 @@ export default function Navbar() {
           <div className="navbar__inner">
             {/* Logo */}
             <Link href="/" className="navbar__logo">
-              Study<span style={{ fontWeight: 400, opacity: 0.8 }}>Point</span>
+              <img src="/logo.png" alt="StudyPoint Logo" className="site-logo" />
             </Link>
 
             {/* Mobile hamburger */}

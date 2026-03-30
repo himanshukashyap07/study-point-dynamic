@@ -3,11 +3,6 @@ import ImageKit from 'imagekit';
 
 import { NextResponse } from 'next/server';
 
-const imagekit = new ImageKit({
-  publicKey: process.env.NEXT_IMAGEKIT_PUBLIC_KEY!,
-  privateKey: process.env.NEXT_IMAGEKIT_PRIVATE_KEY!,
-  urlEndpoint: process.env.NEXT_IMAGEKIT_URL_ENDPOINT!,
-});
 const MAX_FILE_SIZE = 10*1024*1024 //10MB
 
 const ALLOWED_FILES_TYPES = [
@@ -30,6 +25,12 @@ const ALLOWED_FILES_TYPES = [
 ];
 
 export async function POST(req: Request) {
+  const imagekit = new ImageKit({
+    publicKey: process.env.NEXT_IMAGEKIT_PUBLIC_KEY!,
+    privateKey: process.env.NEXT_IMAGEKIT_PRIVATE_KEY!,
+    urlEndpoint: process.env.NEXT_IMAGEKIT_URL_ENDPOINT!,
+  });
+
   const formData = await req.formData();
   const file = formData.get('file') as File;
   

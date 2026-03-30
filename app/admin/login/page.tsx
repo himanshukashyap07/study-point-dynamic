@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation';
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail]       = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError]       = useState('');
-  const [loading, setLoading]   = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -35,7 +35,7 @@ export default function AdminLoginPage() {
   return (
     <div className="login-wrap">
       <div className="login-card">
-        <h1>📚 StudyPoint</h1>
+        <img src="/logo.png" alt="StudyPoint Logo" className="site-logo login-logo" />
         <p>Admin Dashboard — Sign in to continue</p>
 
         {error && <div className="alert alert-error">{error}</div>}

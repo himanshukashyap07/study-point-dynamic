@@ -7,6 +7,9 @@ import AuthProvider from '@/context/authProvider';
 export const metadata: Metadata = {
   title: 'StudyPoint — Your Learning Destination',
   description: 'Access study material, notes, PDFs and video links for JEE, School, Job Exams and more.',
+  icons: {
+    icon: '/logo.png',
+  },
 };
 
 export default function RootLayout({
