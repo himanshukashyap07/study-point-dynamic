@@ -3,6 +3,8 @@ import './globals.css';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import AuthProvider from '@/context/authProvider';
+import { Analytics } from "@vercel/analytics/next"
+
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://studypoint.com'),
@@ -69,6 +71,7 @@ export default function RootLayout({
           <main className="main-content">{children}</main>
           <Footer />
         </body>
+        <Analytics />
       </AuthProvider>
     </html>
   );

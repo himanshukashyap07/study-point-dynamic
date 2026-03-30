@@ -62,6 +62,15 @@ export default function AdminSidebar({ navLinks, selected, onSelect }: Props) {
           🔗 Manage Navigation
         </button>
 
+        {/* Manage Reels */}
+        <button
+          className={`admin-sidebar__item${selected === '__reels__' ? ' active' : ''}`}
+          onClick={() => handleSelect('__reels__')}
+          style={{ fontWeight: 700 }}
+        >
+          🎥 Manage Reels (Vertical Video)
+        </button>
+
         {/* Static pages */}
         <div className="admin-sidebar__section">Static Pages</div>
         {STATIC_PAGES.map((slug) => (

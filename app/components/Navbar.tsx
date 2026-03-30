@@ -69,14 +69,29 @@ export default function Navbar() {
         </div>
       </div>
 
+      {/* Middle logo bar */}
+      <div className="middlebar">
+        <div className="container">
+          <div className="middlebar__inner">
+            <Link href="/" className="middlebar__logo">
+              <img src="/logo.png" alt="StudyPoint Logo" className="site-logo" />
+            </Link>
+            <div className="middlebar__images">
+              <Link href="/story">
+                <img src="/shorts.png" alt="Shorts" className="middlebar__temp-image" />
+              </Link>
+              <Link href="/web-stories">
+                <img src="/web-story.png" alt="Web Stories" className="middlebar__temp-image" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Main navbar */}
       <nav className="navbar">
         <div className="container">
           <div className="navbar__inner">
-            {/* Logo */}
-            <Link href="/" className="navbar__logo">
-              <img src="/logo.png" alt="StudyPoint Logo" className="site-logo" />
-            </Link>
 
             {/* Mobile hamburger */}
             <button
@@ -102,6 +117,20 @@ export default function Navbar() {
               <li className="nav-item">
                 <div className="nav-item-wrapper">
                   <Link href="/about" className="nav-label-link" onClick={() => setMenuOpen(false)}>About</Link>
+                </div>
+              </li>
+
+              {/* Stories */}
+              <li className="nav-item">
+                <div className="nav-item-wrapper">
+                  <Link href="/story" className="nav-label-link" onClick={() => setMenuOpen(false)}>Stories</Link>
+                </div>
+              </li>
+
+              {/* Web Stories */}
+              <li className="nav-item">
+                <div className="nav-item-wrapper">
+                  <Link href="/web-stories" className="nav-label-link" onClick={() => setMenuOpen(false)}>Web Stories</Link>
                 </div>
               </li>
 

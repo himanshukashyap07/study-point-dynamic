@@ -5,6 +5,7 @@ import { signOut } from 'next-auth/react';
 import AdminSidebar from './components/AdminSidebar';
 import ContentEditor from './components/ContentEditor';
 import NavLinkManager from './components/NavLinkManager';
+import ReelsManager from './components/ReelsManager';
 
 interface SubLink  { _id: string; slug: string; label: string; contentBlocks?: any[]; }
 interface MidLink  { _id: string; slug: string; label: string; subLinks: SubLink[]; contentBlocks?: any[]; }
@@ -12,6 +13,7 @@ interface NavLink  { _id: string; slug: string; label: string; midLinks: MidLink
 
 function getLabelForKey(key: string, navLinks: NavLink[]): { title: string; slug: string } {
   if (key === '__navlinks__') return { title: '🔗 Manage Navigation', slug: '' };
+  if (key === '__reels__') return { title: '🎥 Manage Reels (Vertical Video)', slug: '' };
   if (!key.includes(':')) {
     const labels: Record<string, string> = {
       home: '🏠 Home',
@@ -73,6 +75,7 @@ export default function AdminPage() {
 
   // Determine what to show in right panel
   const showNavManager = selected === '__navlinks__';
+  const showReelsManager = selected === '__reels__';
   const showNavContent = selected.startsWith('nav:') || selected.startsWith('mid:') || selected.startsWith('sub:');
 
   return (
@@ -89,15 +92,19 @@ export default function AdminPage() {
           <NavLinkManager navLinks={navLinks} onRefresh={fetchNavLinks} />
         )}
 
+        {showReelsManager && (
+          <ReelsManager />
+        )}
+
         {staticSlug && (
           <ContentEditor pageSlug={staticSlug} title={info.title} />
         )}
 
-        {showNavContent && !showNavManager && (
+        {showNavContent && !showNavManager && !showReelsManager && (
           <NavContentEditor selectedKey={selected} navLinks={navLinks} onRefresh={fetchNavLinks} />
         )}
 
-        {!showNavManager && !staticSlug && !showNavContent && (
+        {!showNavManager && !showReelsManager && !staticSlug && !showNavContent && (
           <div className="content-card" style={{ textAlign: 'center', color: 'var(--gray-400)', padding: '4rem' }}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>👈</div>
             <p>Select a page or section from the left panel to manage its content.</p>

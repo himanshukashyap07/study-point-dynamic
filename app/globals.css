@@ -252,7 +252,7 @@ button {
 
 .navbar {
   background: var(--white);
-  height: 80px;
+  height: 55px;
   display: flex;
   align-items: center;
   border-bottom: 1px solid var(--border);
@@ -267,18 +267,42 @@ button {
   width: 100%;
 }
 
-.navbar__logo {
+/* Middle Bar added per request */
+.middlebar {
+  background: var(--white);
+  padding: 12px 0;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.middlebar__inner {
+  display: flex;
+  align-items: center;
+}
+
+.middlebar__images {
+  display: flex;
+  gap: var(--sp-4);
+  margin-right: var(--sp-6);
+}
+
+.middlebar__temp-image {
+  height: 45px;
+  width: auto;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.middlebar__logo {
   font-size: 1.6rem;
   font-weight: 800;
   color: var(--blue-700);
   display: inline-flex;
-  /* Use flex to control the gap specifically */
   align-items: center;
   gap: 0;
-  /* NO GAP between Study and Point */
   letter-spacing: -0.02em;
   margin: 0 !important;
   padding: 0 !important;
+  margin-right: 2rem;
 }
 
 /* Keyframe for desktop navbar menu item entrance */
@@ -791,6 +815,67 @@ button {
 
 .content-link:hover {
   color: var(--blue-800);
+}
+
+/* Reels CSS Grid */
+.reels-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1.5rem;
+  width: 100%;
+}
+
+@media (max-width: 1200px) {
+  .reels-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .reels-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .reels-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+}
+
+.reel-item {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  background: #000;
+}
+
+.reel-item video {
+  width: 100%;
+  aspect-ratio: 9/16;
+  object-fit: cover;
+  display: block;
+}
+
+.reel-info {
+  background: var(--white);
+  padding: 0.75rem;
+}
+
+.reel-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--gray-800);
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* Footer */
