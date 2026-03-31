@@ -288,7 +288,7 @@ button {
 }
 
 .middlebar__temp-image {
-  height: 45px;
+  height: 2.5rem;
   width: auto;
   object-fit: contain;
   border-radius: 4px;
