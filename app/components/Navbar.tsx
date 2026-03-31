@@ -74,7 +74,7 @@ export default function Navbar() {
         <div className="container">
           <div className="middlebar__inner">
             <Link href="/" className="middlebar__logo">
-              <img src="/logo.png" alt="StudyPoint Logo" className="site-logo" />
+              <img src="/logo-text.png" style={{ width: "120px", height: "auto" }} alt="StudyPoint Logo" className="site-logo" />
             </Link>
             <div className="middlebar__images">
               <Link href="/story">
