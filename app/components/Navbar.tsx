@@ -119,21 +119,6 @@ export default function Navbar() {
                   <Link href="/about" className="nav-label-link" onClick={() => setMenuOpen(false)}>About</Link>
                 </div>
               </li>
-
-              {/* Stories */}
-              <li className="nav-item">
-                <div className="nav-item-wrapper">
-                  <Link href="/story" className="nav-label-link" onClick={() => setMenuOpen(false)}>Stories</Link>
-                </div>
-              </li>
-
-              {/* Web Stories */}
-              <li className="nav-item">
-                <div className="nav-item-wrapper">
-                  <Link href="/web-stories" className="nav-label-link" onClick={() => setMenuOpen(false)}>Web Stories</Link>
-                </div>
-              </li>
-
               {/* Dynamic nav links */}
               {navLinks.map((nl) => (
                 <li key={nl._id} className="nav-item dropdown-parent">

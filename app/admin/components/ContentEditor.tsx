@@ -208,8 +208,16 @@ function BlockForm({ initial, onClose, onSave }: {
             <label className="form-label">Image/PDF/Video URL {uploading && <span style={{color: 'var(--blue-500)'}}> (Uploading...)</span>}</label>
             <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column' }}>
               <input type="file" className="form-input" accept="image/*, application/pdf, video/*" onChange={handleImageUpload} />
-              <input className="form-input" placeholder="Or enter URL directly (e.g. from ImageKit)" value={image} onChange={(e) => setImage(e.target.value)} />
+              <input className="form-input" placeholder="Or enter URL directly (e.g. Google Drive, Canva, Unsplash)" value={image} onChange={(e) => setImage(e.target.value)} />
             </div>
+            {image && (
+              <div style={{ marginTop: '0.75rem', padding: '0.5rem', border: '1px dashed var(--border)', borderRadius: '4px', background: 'var(--gray-50)' }}>
+                <p style={{ fontSize: '0.75rem', color: 'var(--gray-500)', marginBottom: '0.5rem' }}>Live Preview:</p>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <EditorMediaPreview url={image} />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Type-specific fields */}
@@ -351,4 +359,29 @@ function BlockPreview({ block }: { block: ContentBlock }) {
     return <p style={{ color: 'var(--gray-500)', fontSize: '0.825rem' }}>{items.length} item{items.length !== 1 ? 's' : ''}</p>;
   }
   return null;
+}
+
+/* ── Editor Media Preview helper ──────────────────────────────────────── */
+function EditorMediaPreview({ url }: { url: string }) {
+  const u = url.toLowerCase();
+  
+  // Basic detection for editor preview
+  if (u.includes('youtube.com/') || u.includes('youtu.be/')) {
+    return <div style={{ fontSize: '0.8rem', color: 'var(--gray-600)' }}>📺 YouTube Video</div>;
+  }
+  if (u.includes('canva.com/design/')) {
+    return <div style={{ fontSize: '0.8rem', color: 'var(--gray-600)' }}>🎨 Canva Design</div>;
+  }
+  if (u.includes('pinterest.com/pin/')) {
+    return <div style={{ fontSize: '0.8rem', color: 'var(--gray-600)' }}>📌 Pinterest Pin</div>;
+  }
+  if (u.includes('drive.google.com')) {
+    return <div style={{ fontSize: '0.8rem', color: 'var(--gray-600)' }}>📁 Google Drive Media</div>;
+  }
+  if (/\.(png|jpg|jpeg|gif|webp|svg|bmp)(\?|$)/.test(u) || u.includes('unsplash.com') || u.includes('pexels.com')) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={url.includes('unsplash.com') || url.includes('drive.google.com') ? 'https://placehold.co/200x120?text=Direct+Image' : url} alt="Preview" style={{ maxWidth: '100%', maxHeight: '150px', borderRadius: '4px' }} onError={(e) => { (e.target as any).src = 'https://placehold.co/200x100?text=Media+Preview'; }} />;
+  }
+  
+  return <div style={{ fontSize: '0.8rem', color: 'var(--gray-400)' }}>No preview available for this link</div>;
 }
